@@ -1311,16 +1311,7 @@ var AwesomeQRCode;
             // Painting work completed
             this._bIsPainted = true;
 
-            var callback = this._callback;
-            this._elCanvas.toBlob(function (blob) {
-                var fileReader = new FileReader();
-                fileReader.onload = function() {
-                    callback(new Uint8Array(this.result));
-                };
-                fileReader.readAsArrayBuffer(blob);
-            });
-
-
+            this._callback(this._elCanvas.toDataURL());
         };
 
         Drawing.prototype.makeImage = function() {
