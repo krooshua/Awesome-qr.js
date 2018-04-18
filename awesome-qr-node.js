@@ -1368,7 +1368,7 @@ AwesomeQRCode = function() {};
 
 AwesomeQRCode.prototype.create = function(vOption) {
 
-    console.log(vOption);
+    //console.log(vOption);
     try {
         this._htOption = {
             size: 800,
