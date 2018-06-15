@@ -1120,7 +1120,7 @@ var AwesomeQRCode;
                 }
             } else {
                 _bContext.rect(0, 0, size, size);
-                _bContext.fillStyle = "#ffffff";
+                _bContext.fillStyle = _htOption.fillStyle ? 'rgba(0, 0, 0, 0)' : "#ffffff";
                 _bContext.fill();
             }
 
@@ -1153,16 +1153,17 @@ var AwesomeQRCode;
                     if (agnPatternCenter.length === 0) {
                         // if align pattern list is empty, then it means that we don't need to leave room for the align patterns
                         if (!bProtected)
-                            _fillRectWithMask(_oContext, nLeft, nTop, (bProtected ? (isBlkPosCtr ? 1 : 1) : dotScale) * nSize, (bProtected ? (isBlkPosCtr ? 1 : 1) : dotScale) * nSize, _maskCanvas, bIsDark);
+                            _fillRectWithMask(_oContext, nLeft, nTop, (bProtected ? (isBlkPosCtr ? 1 : 1) : dotScale) * nSize, (bProtected ? (isBlkPosCtr ? 1 : 1) : dotScale) * nSize, _maskCanvas, bIsDark, _htOption.fillStyle);
                     } else {
                         var inAgnRange = ((col < nCount - 4 && col >= nCount - 4 - 5 && row < nCount - 4 && row >= nCount - 4 - 5));
                         if (!bProtected && !inAgnRange)
-                            _fillRectWithMask(_oContext, nLeft, nTop, (bProtected ? (isBlkPosCtr ? 1 : 1) : dotScale) * nSize, (bProtected ? (isBlkPosCtr ? 1 : 1) : dotScale) * nSize, _maskCanvas, bIsDark);
+                            _fillRectWithMask(_oContext, nLeft, nTop, (bProtected ? (isBlkPosCtr ? 1 : 1) : dotScale) * nSize, (bProtected ? (isBlkPosCtr ? 1 : 1) : dotScale) * nSize, _maskCanvas, bIsDark, _htOption.fillStyle);
                     }
                 }
             }
 
             // Draw POSITION protectors
+            //var protectorStyle = _htOption.fillStyle ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0.6)";
             var protectorStyle = "rgba(255, 255, 255, 0.6)";
             _oContext.fillStyle = protectorStyle;
             _oContext.fillRect(0, 0, 8 * nSize, 8 * nSize);
@@ -1182,8 +1183,10 @@ var AwesomeQRCode;
                     } else if (agnY === 6 && (agnX === 6 || agnX === edgeCenter)) {
                         continue;
                     } else if (agnX !== 6 && agnX !== edgeCenter && agnY !== 6 && agnY !== edgeCenter) {
+                        //_oContext.fillStyle = 'rgba(255, 255, 255, 1)'
                         _drawAlignProtector(_oContext, agnX, agnY, nSize, nSize);
                     } else {
+                        //_oContext.fillStyle = 'rgba(255, 255, 255, 1)'
                         _drawAlignProtector(_oContext, agnX, agnY, nSize, nSize);
                     }
                     // console.log("agnX=" + agnX + ", agnY=" + agnX);
@@ -1191,6 +1194,7 @@ var AwesomeQRCode;
             }
 
             // Draw POSITION patterns
+            //_oContext.fillStyle = _htOption.fillStyle ? 'rgba(0, 0, 0, 0.6)' : _htOption.colorDark;
             _oContext.fillStyle = _htOption.colorDark;
             _oContext.fillRect(0, 0, 7 * nSize, nSize);
             _oContext.fillRect((nCount - 7) * nSize, 0, 7 * nSize, nSize);
@@ -1222,10 +1226,10 @@ var AwesomeQRCode;
                     } else if (agnY === 6 && (agnX === 6 || agnX === edgeCenter)) {
                         continue;
                     } else if (agnX !== 6 && agnX !== edgeCenter && agnY !== 6 && agnY !== edgeCenter) {
-                        _oContext.fillStyle = "rgba(0, 0, 0, .2)";
+                        _oContext.fillStyle = _htOption.fillStyle ? "rgba(0, 0, 0, 0.4)" : "rgba(0, 0, 0, .2)";
                         _drawAlign(_oContext, agnX, agnY, nSize, nSize);
                     } else {
-                        _oContext.fillStyle = _htOption.colorDark;
+                        _oContext.fillStyle = _htOption.fillStyle ? 'rgba(0, 0, 0, 0.6)' : _htOption.colorDark;
                         _drawAlign(_oContext, agnX, agnY, nSize, nSize);
                     }
                 }
@@ -1372,10 +1376,31 @@ var AwesomeQRCode;
         return 0.30 * r + 0.59 * b + 0.11 * b;
     }
 
-    function _fillRectWithMask(canvas, x, y, w, h, maskSrc, bDark) {
-        //console.log("maskSrc=" + maskSrc);
+    function _fillRectWithMask(canvas, x, y, w, h, maskSrc, bDark, fillStyle) {
         if (maskSrc === undefined) {
-            canvas.fillRect(x, y, w, h);
+            if (fillStyle === undefined) {
+                canvas.fillRect(x, y, w, h);
+            } else {
+                var fill_ = canvas.fillStyle;
+                canvas.fillStyle = bDark ? "rgba(136, 136, 136, 0.1)" : "rgba(255, 255, 255, 0.1)";
+                /** create an rect
+                 *  - - -
+                 *  -   -
+                 *  - - -
+                 */
+                canvas.fillRect(x, y, w / 3, h / 3);
+                canvas.fillRect(x + w / 3, y, w / 3, h / 3);
+                canvas.fillRect(x + w / 3 * 2, y, w / 3, h / 3);
+                canvas.fillRect(x + w / 3 * 2, y + h / 3, w / 3, h/ 3);
+                canvas.fillRect(x + w / 3 * 2, y + h / 3 * 2, w / 3, h/ 3);
+                canvas.fillRect(x + w / 3, y + h / 3 * 2, w / 3, h/ 3);
+                canvas.fillRect(x, y + h / 3 * 2, w / 3, h/ 3);
+                canvas.fillRect(x, y + h / 3 , w / 3, h/ 3);
+                // fill rect center
+                canvas.fillStyle = bDark ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.8)";
+                canvas.fillRect(x + w / 3, y + w / 3, w / 3, h / 3);
+                canvas.fillStyle = fill_;
+            }
         } else {
             canvas.drawImage(maskSrc, x, y, w, h, x, y, w, h);
             var fill_ = canvas.fillStyle;
@@ -1419,7 +1444,8 @@ var AwesomeQRCode;
             maskedDots: false,
             autoColor: true,
             binarizeThreshold: 128,
-            callback: undefined
+            callback: undefined,
+            returnCode: false
         };
 
         if (typeof vOption === 'string') {
@@ -1436,8 +1462,9 @@ var AwesomeQRCode;
 
         this._oQRCode = null;
         this._oDrawing = new Drawing(this._htOption);
-
-        if (this._htOption.text) {
+        if (this._htOption.returnCode) {
+            this.returnCode(this._htOption.text);
+        } else if (this._htOption.text) {
             this.makeCode(this._htOption.text);
         }
     };
@@ -1485,6 +1512,14 @@ var AwesomeQRCode;
         this._oQRCode.make();
         this._oDrawing.draw(this._oQRCode);
         this.makeImage();
+    };
+
+    AwesomeQRCode.prototype.returnCode = function(sText) {
+        this._oQRCode = new QRCodeModel(-1, this._htOption.correctLevel);
+        this._oQRCode.addData(sText);
+        this._oQRCode.make();
+        this._oQRCode.patern = QRUtil.getPatternPosition(this._oQRCode.typeNumber)
+        this._htOption.callback(this._oQRCode)
     };
 
     AwesomeQRCode.prototype.makeImage = function() {
